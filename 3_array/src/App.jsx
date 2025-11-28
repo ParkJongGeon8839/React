@@ -1,35 +1,105 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-
+import React, { useRef, useState } from 'react';
+import CreateUser from './components/CreateUser';
+import UserList from './components/UserList';
+import Products from './components/Products';
 function App() {
-  const [count, setCount] = useState(0)
+  const [inputs, setInputs] = useState({
+    userid: '',
+    name: '',
+    email: '',
+  });
+
+  const { userid, name, email } = inputs;
+
+  const onChange = (e) => {
+    const { name, value } = e.target;
+    setInputs({
+      ...inputs,
+      [name]: value,
+    });
+  };
+
+  const [users, setUsers] = useState([
+    {
+      id: 1,
+      userid: 'apple',
+      name: '김사과',
+      email: 'apple@apple.com',
+      active: true,
+    },
+    {
+      id: 2,
+      userid: 'banana',
+      name: '반하나',
+      email: 'banana@banana.com',
+      active: false,
+    },
+    {
+      id: 3,
+      userid: 'orange',
+      name: '오렌지',
+      email: 'orange@orange.com',
+      active: false,
+    },
+    {
+      id: 4,
+      userid: 'melon',
+      name: '이메론',
+      email: 'melon@melon.com',
+      active: false,
+    },
+  ]);
+
+  const nextId = useRef(5);
+
+  const onCreate = () => {
+    const user = {
+      id: nextId.current,
+      userid,
+      name,
+      email,
+    };
+
+    setUsers([...users, user]);
+
+    setInputs({
+      userid: '',
+      name: '',
+      email: '',
+    });
+
+    nextId.current += 1;
+  };
+
+  const onRemove = (id) => {
+    setUsers(users.filter((user) => user.id !== id));
+  };
+
+  const onToggle = (id) => {
+    setUsers(users.map((user) => (user.id === id ? { ...user, active: !user.active } : user)));
+  };
+
+  const [showProducts, setShowProducts] = useState(true);
 
   return (
     <>
+      <CreateUser
+        userid={userid}
+        name={name}
+        email={email}
+        onCreate={onCreate}
+        onChange={onChange}
+      />
+      <UserList users={users} onRemove={onRemove} onToggle={onToggle} />
+
+      <hr />
+
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        {showProducts && <Products />}
+        <button onClick={() => setShowProducts((show) => !show)}>제품 보기</button>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
